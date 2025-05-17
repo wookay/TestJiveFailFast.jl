@@ -26,10 +26,8 @@ jobs:
       - name: runtests
         run: |
              julia -e 'using Pkg; Pkg.develop(url="https://github.com/wookay/Jive.jl")'
-
-             JULIA_TEST_FAILFAST=1 julia --project=. -e 'using Pkg; Pkg.test()' || true
-
              cd test/
                                    julia -e 'using Jive; runtests(@__DIR__, failfast=true)' || true
+             JULIA_TEST_FAILFAST=1 julia runtests.jl || true
              JULIA_TEST_FAILFAST=1 julia runtests.jl test3.jl || true
              cd ../
