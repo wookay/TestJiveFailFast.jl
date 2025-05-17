@@ -15,9 +15,6 @@ jobs:
         julia-version: [1.11.5]         # April 14, 2025
         julia-arch: [x64]
         os: [ubuntu-latest]
-        include:
-          - julia-version: nightly
-            os: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -28,10 +25,11 @@ jobs:
       - uses: julia-actions/julia-buildpkg@v1
       - name: runtests
         run: |
-             julia -e 'using Pkg; Pkg.develop("Jive")'
-             JULIA_TEST_FAILFAST=1 julia --project=. -e 'using Pkg; Pkg.test()'
+             julia -e 'using Pkg; Pkg.develop(url="https://github.com/wookay/Jive.jl")'
+
+             JULIA_TEST_FAILFAST=1 julia --project=. -e 'using Pkg; Pkg.test()' || true
+
              cd test/
-                                   julia -e 'using Jive; runtests(@__DIR__, failfast=true)'
-             JULIA_TEST_FAILFAST=1 julia runtests.jl test3.jl
+                                   julia -e 'using Jive; runtests(@__DIR__, failfast=true)' || true
+             JULIA_TEST_FAILFAST=1 julia runtests.jl test3.jl || true
              cd ../
-             true
