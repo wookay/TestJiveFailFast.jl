@@ -1,0 +1,37 @@
+name: CI
+
+on: [pull_request, push]
+
+# needed to allow julia-actions/cache to delete old caches that it has created
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  Test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        julia-version: [1.11.5]         # April 14, 2025
+        julia-arch: [x64]
+        os: [ubuntu-latest]
+        include:
+          - julia-version: nightly
+            os: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: julia-actions/setup-julia@v1
+        with:
+          version: ${{ matrix.julia-version }}
+      - uses: julia-actions/cache@v1
+      - uses: julia-actions/julia-buildpkg@v1
+      - name: runtests
+        run: |
+             julia -e 'using Pkg; Pkg.develop("Jive")'
+             JULIA_TEST_FAILFAST=1 julia --project=. -e 'using Pkg; Pkg.test()'
+             cd test/
+                                   julia -e 'using Jive; runtests(@__DIR__, failfast=true)'
+             JULIA_TEST_FAILFAST=1 julia runtests.jl test3.jl
+             cd ../
+             true
